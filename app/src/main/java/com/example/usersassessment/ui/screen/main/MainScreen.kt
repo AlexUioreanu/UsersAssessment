@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.usersassessment.R
@@ -41,37 +42,47 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MainScreenBridge(viewModel: MainViewModel = koinViewModel()) {
 
-    MainScreen()
+    val uiState by viewModel.viewState.collectAsStateWithLifecycle()
+
+    MainScreen(
+        users = uiState.users,
+        searchedText = uiState.searchQuery,
+        onSearchByNickName = { uiState.onSearchByNickName(it) })
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(users: List<User>, searchedText: String, onSearchByNickName: (String) -> Unit) {
     val dimensions = LocalDimensions.current
 
     Scaffold(modifier = Modifier
         .fillMaxSize()
-        .padding(horizontal = dimensions.spaceMd, vertical = dimensions.spaceXl), topBar = {
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("Search Users") },
-            leadingIcon = {
-                Icon(
-                    modifier = Modifier.size(dimensions.spaceLg),
-                    tint = Color(0x51206D0E),
-                    painter = painterResource(id = R.drawable.ic_users),
-                    contentDescription = ""
-                )
-            },
-            colors = TextFieldDefaults.colors(),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-    }) { innerPadding ->
+        .padding(
+            start = dimensions.spaceMd,
+            end = dimensions.spaceMd,
+            top = dimensions.spaceXl
+        ),
+        topBar = {
+            OutlinedTextField(
+                value = searchedText,
+                onValueChange = onSearchByNickName,
+                label = { Text("Search Users") },
+                leadingIcon = {
+                    Icon(
+                        modifier = Modifier.size(dimensions.spaceLg),
+                        tint = Color(0x51206D0E),
+                        painter = painterResource(id = R.drawable.ic_users),
+                        contentDescription = ""
+                    )
+                },
+                colors = TextFieldDefaults.colors(),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = dimensions.spaceSm)
+            )
+        }) { innerPadding ->
         UsersGrid(
-            users = listOf(User(1, "Alex", "dsaas")),
+            users = users,
             innerPadding = innerPadding
         )
     }
@@ -93,7 +104,7 @@ fun UsersGrid(
         columns = StaggeredGridCells.Fixed(2),
     ) {
         items(users, key = { it.id }) {
-            UserCardItem(name = it.name, urlImage = it.imageUrl)
+            UserCardItem(name = it.nickName, urlImage = it.imageUrl)
         }
     }
 }
@@ -125,7 +136,7 @@ fun UserCardItem(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp)
+                        .wrapContentHeight()
                 )
             }
             Text(

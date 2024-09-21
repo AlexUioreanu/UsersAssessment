@@ -5,11 +5,16 @@ plugins {
     id("kotlin-parcelize")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("androidx.room")
 }
 
 android {
     namespace = "com.example.usersassessment"
     compileSdk = 34
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 
     defaultConfig {
         applicationId = "com.example.usersassessment"
@@ -81,6 +86,13 @@ dependencies {
     //Gson
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    //Room
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 
     //glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
