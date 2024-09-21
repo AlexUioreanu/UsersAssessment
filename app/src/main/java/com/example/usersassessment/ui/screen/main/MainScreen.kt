@@ -34,10 +34,12 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.usersassessment.R
 import com.example.usersassessment.domain.model.User
+import com.example.usersassessment.ui.screen.main.vm.MainViewModel
 import com.example.usersassessment.ui.theme.LocalDimensions
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MainScreenBridge() {
+fun MainScreenBridge(viewModel: MainViewModel = koinViewModel()) {
 
     MainScreen()
 }
