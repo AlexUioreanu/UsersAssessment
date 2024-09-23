@@ -1,15 +1,14 @@
 package com.example.usersassessment.ui.screen.main.vm
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.usersassessment.domain.model.User
 import com.example.usersassessment.domain.usecase.FetchUsersUseCase
 import com.example.usersassessment.domain.usecase.GetAllUsersUseCase
 import com.example.usersassessment.domain.usecase.GetUsersByNickName
 import com.example.usersassessment.domain.usecase.SaveAllUsersUseCase
 import com.example.usersassessment.utils.NetworkMonitor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,8 +25,6 @@ open class MainViewModel(
     private val saveAllUsersUseCase: SaveAllUsersUseCase,
     private val getUsersByNickName: GetUsersByNickName
 ) : ViewModel() {
-
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _viewState: MutableStateFlow<MainViewState> =
         MutableStateFlow(
@@ -48,19 +45,21 @@ open class MainViewModel(
     }
 
     private fun subscribeToNetworkConnectivity() {
-        coroutineScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             networkMonitor.isNetworkConnected.collectLatest { isConnected ->
                 if (isConnected) {
-                    launch {
-                        fetchUsersUseCase()
-                            .onSuccess { list ->
-                                emitViewState { copy(users = list) }
-                                saveAllUsersUseCase(list)
-                            }
+                    if (_viewState.value.users.isEmpty()) {
+                        launch(Dispatchers.IO) {
+                            fetchUsersUseCase()
+                                .onSuccess { list ->
+                                    emitViewState { copy(users = list) }
+                                    saveAllUsersUseCase(list)
+                                }
+                        }
                     }
                 } else {
                     if (_viewState.value.users.isEmpty()) {
-                        launch {
+                        launch(Dispatchers.IO) {
                             val list = getAllUsersUseCase()
                             if (list.isEmpty()) {
                                 setViewEffect { MainViewEffect.Dialog.Error(title = "Search will not work") }
@@ -75,7 +74,7 @@ open class MainViewModel(
     }
 
     private fun onSearchByNickName(nickName: String) {
-        coroutineScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val list = getUsersByNickName(nickName)
             emitViewState { copy(searchQuery = nickName, users = list) }
         }
@@ -83,14 +82,14 @@ open class MainViewModel(
 
     private fun emitViewState(
         reducer: MainViewState.() -> MainViewState
-    ) = coroutineScope.launch(Dispatchers.Main) {
+    ) = viewModelScope.launch(Dispatchers.Main) {
         val newState = _viewState.value.reducer()
         _viewState.value = newState
     }
 
     private fun setViewEffect(builder: () -> MainViewEffect) {
         val effectValue = builder()
-        coroutineScope.launch { _effects.emit(effectValue) }
+        viewModelScope.launch(Dispatchers.IO) { _effects.emit(effectValue) }
     }
 }
 
