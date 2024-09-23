@@ -22,7 +22,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +39,9 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.usersassessment.R
 import com.example.usersassessment.domain.model.User
+import com.example.usersassessment.ui.commonElements.Dialog
+import com.example.usersassessment.ui.commonElements.DialogData
+import com.example.usersassessment.ui.screen.main.vm.MainViewEffect
 import com.example.usersassessment.ui.screen.main.vm.MainViewModel
 import com.example.usersassessment.ui.theme.LocalDimensions
 import org.koin.androidx.compose.koinViewModel
@@ -43,6 +50,25 @@ import org.koin.androidx.compose.koinViewModel
 fun MainScreenBridge(viewModel: MainViewModel = koinViewModel()) {
 
     val uiState by viewModel.viewState.collectAsStateWithLifecycle()
+    val uiEffect by viewModel.effects.collectAsStateWithLifecycle(initialValue = null)
+
+    var dialogData by remember { mutableStateOf(DialogData(false, "")) }
+
+    LaunchedEffect(uiEffect) {
+        when (uiEffect) {
+            is MainViewEffect.Dialog.Error -> {
+                dialogData = DialogData(true, (uiEffect as MainViewEffect.Dialog.Error).title)
+            }
+
+            null -> Unit
+        }
+    }
+
+    if (dialogData.isShowing)
+        Dialog(
+            title = dialogData.title,
+            icon = R.drawable.ic_error,
+            onDismiss = { dialogData = dialogData.copy(isShowing = false) })
 
     MainScreen(
         users = uiState.users,
@@ -51,7 +77,11 @@ fun MainScreenBridge(viewModel: MainViewModel = koinViewModel()) {
 }
 
 @Composable
-fun MainScreen(users: List<User>, searchedText: String, onSearchByNickName: (String) -> Unit) {
+fun MainScreen(
+    users: List<User>,
+    searchedText: String,
+    onSearchByNickName: (String) -> Unit
+) {
     val dimensions = LocalDimensions.current
 
     Scaffold(modifier = Modifier
@@ -59,10 +89,13 @@ fun MainScreen(users: List<User>, searchedText: String, onSearchByNickName: (Str
         .padding(
             start = dimensions.spaceMd,
             end = dimensions.spaceMd,
-            top = dimensions.spaceXl
+            top = dimensions.spaceXxl
         ),
         topBar = {
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = dimensions.spaceSm),
                 value = searchedText,
                 onValueChange = onSearchByNickName,
                 label = { Text("Search Users") },
@@ -75,10 +108,7 @@ fun MainScreen(users: List<User>, searchedText: String, onSearchByNickName: (Str
                     )
                 },
                 colors = TextFieldDefaults.colors(),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = dimensions.spaceSm)
+                singleLine = true
             )
         }) { innerPadding ->
         UsersGrid(
@@ -150,5 +180,3 @@ fun UserCardItem(
         }
     }
 }
-
-
