@@ -53,6 +53,7 @@ fun MainScreenBridge(viewModel: MainViewModel = koinViewModel()) {
     val uiEffect by viewModel.effects.collectAsStateWithLifecycle(initialValue = null)
 
     var dialogData by remember { mutableStateOf(DialogData(false, "")) }
+    var searchQuery by remember { mutableStateOf(uiState.searchQuery) }
 
     LaunchedEffect(uiEffect) {
         when (uiEffect) {
@@ -72,8 +73,11 @@ fun MainScreenBridge(viewModel: MainViewModel = koinViewModel()) {
 
     MainScreen(
         users = uiState.users,
-        searchedText = uiState.searchQuery,
-        onSearchByNickName = { uiState.onSearchByNickName(it) })
+        searchedText = searchQuery,
+        onSearchByNickName = { query ->
+            searchQuery = query
+            viewModel.viewState.value.onSearchByNickName(query)
+        })
 }
 
 @Composable
