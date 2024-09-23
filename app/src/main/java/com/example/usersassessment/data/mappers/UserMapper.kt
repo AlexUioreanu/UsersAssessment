@@ -1,7 +1,7 @@
 package com.example.usersassessment.data.mappers
 
+import com.example.usersassessment.data.db.entity.User
 import com.example.usersassessment.data.network.model.UserResponseItem
-import com.example.usersassessment.domain.model.User
 
 fun List<UserResponseItem>.toUsers(): List<User> =
     map { userResponseItem ->

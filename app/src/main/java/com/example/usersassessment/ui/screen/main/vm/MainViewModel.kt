@@ -2,11 +2,10 @@ package com.example.usersassessment.ui.screen.main.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.usersassessment.domain.model.User
-import com.example.usersassessment.domain.usecase.FetchUsersUseCase
-import com.example.usersassessment.domain.usecase.GetAllUsersUseCase
-import com.example.usersassessment.domain.usecase.GetUsersByNickName
-import com.example.usersassessment.domain.usecase.SaveAllUsersUseCase
+import com.example.usersassessment.repository.usecase.FetchUsersUseCase
+import com.example.usersassessment.repository.usecase.GetAllUsersUseCase
+import com.example.usersassessment.repository.usecase.GetUsersByNickName
+import com.example.usersassessment.repository.usecase.SaveAllUsersUseCase
 import com.example.usersassessment.utils.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -47,28 +47,21 @@ class MainViewModel(
     private fun subscribeToNetworkConnectivity() {
         viewModelScope.launch(Dispatchers.IO) {
             networkMonitor.isNetworkConnected.collectLatest { isConnected ->
+                if (_viewState.value.users.isNotEmpty()) return@collectLatest
                 if (isConnected) {
-                    if (_viewState.value.users.isEmpty()) {
-                        launch(Dispatchers.IO) {
-                            fetchUsersUseCase()
-                                .onSuccess { list ->
-                                    emitViewState { copy(users = list) }
-                                    saveAllUsersUseCase(list)
-                                }.onFailure {
-                                    setViewEffect { MainViewEffect.Dialog.Error(title = "Fail to fetch the Users \n\n Try again later!") }
-                                }
+                    fetchUsersUseCase()
+                        .onSuccess { list ->
+                            emitViewState { copy(users = list) }
+                            saveAllUsersUseCase(list)
+                        }.onFailure {
+                            setViewEffect { MainViewEffect.Dialog.Error(title = "Fail to fetch the Users \n\n Try again later! \n\n ${it.cause} /${it.message}") }
                         }
-                    }
                 } else {
-                    if (_viewState.value.users.isEmpty()) {
-                        launch(Dispatchers.IO) {
-                            val list = getAllUsersUseCase()
-                            if (list.isEmpty()) {
-                                setViewEffect { MainViewEffect.Dialog.Error(title = "Search will not work") }
-                            } else {
-                                emitViewState { copy(users = list) }
-                            }
-                        }
+                    val list = getAllUsersUseCase()
+                    if (list.isEmpty()) {
+                        setViewEffect { MainViewEffect.Dialog.Error(title = "Search will not work") }
+                    } else {
+                        emitViewState { copy(users = list) }
                     }
                 }
             }
@@ -85,18 +78,10 @@ class MainViewModel(
     private fun emitViewState(
         reducer: MainViewState.() -> MainViewState
     ) = viewModelScope.launch(Dispatchers.Main) {
-        val newState = _viewState.value.reducer()
-        _viewState.value = newState
+        _viewState.update { _viewState.value.reducer() }
     }
 
-    private fun setViewEffect(builder: () -> MainViewEffect) {
-        val effectValue = builder()
-        viewModelScope.launch(Dispatchers.IO) { _effects.emit(effectValue) }
+    private suspend fun setViewEffect(builder: () -> MainViewEffect) {
+        _effects.emit(builder())
     }
 }
-
-data class MainViewState(
-    val users: List<User>,
-    val searchQuery: String,
-    val onSearchByNickName: (String) -> Unit
-)

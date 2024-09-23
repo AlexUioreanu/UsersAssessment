@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.usersassessment.domain.model.User
+import com.example.usersassessment.data.db.entity.User
 
 @Dao
 interface UserDao {

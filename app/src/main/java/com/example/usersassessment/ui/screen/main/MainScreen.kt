@@ -38,7 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.usersassessment.R
-import com.example.usersassessment.domain.model.User
+import com.example.usersassessment.data.db.entity.User
 import com.example.usersassessment.ui.commonElements.Dialog
 import com.example.usersassessment.ui.commonElements.DialogData
 import com.example.usersassessment.ui.screen.main.vm.MainViewEffect

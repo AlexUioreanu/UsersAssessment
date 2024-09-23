@@ -1,9 +1,10 @@
 package com.example.usersassessment.data.repository
 
 import com.example.usersassessment.data.db.UserDao
+import com.example.usersassessment.data.db.entity.User
 import com.example.usersassessment.data.mappers.toUsers
 import com.example.usersassessment.data.network.api.UsersApi
-import com.example.usersassessment.domain.model.User
+import com.example.usersassessment.repository.repository.UserRepository
 
 class UserRepositoryImpl(private val api: UsersApi, private val dao: UserDao) : UserRepository {
 

@@ -1,4 +1,4 @@
-package com.example.usersassessment.domain.model
+package com.example.usersassessment.data.db.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

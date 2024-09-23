@@ -1,10 +1,10 @@
 package com.example.usersassessment.ui.screen.main.vm
 
-import com.example.usersassessment.domain.model.User
-import com.example.usersassessment.domain.usecase.FetchUsersUseCase
-import com.example.usersassessment.domain.usecase.GetAllUsersUseCase
-import com.example.usersassessment.domain.usecase.GetUsersByNickName
-import com.example.usersassessment.domain.usecase.SaveAllUsersUseCase
+import com.example.usersassessment.data.db.entity.User
+import com.example.usersassessment.repository.usecase.FetchUsersUseCase
+import com.example.usersassessment.repository.usecase.GetAllUsersUseCase
+import com.example.usersassessment.repository.usecase.GetUsersByNickName
+import com.example.usersassessment.repository.usecase.SaveAllUsersUseCase
 import com.example.usersassessment.utils.MainDispatcherRule
 import com.example.usersassessment.utils.NetworkMonitor
 import io.mockk.Called

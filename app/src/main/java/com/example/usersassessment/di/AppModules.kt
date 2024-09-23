@@ -2,12 +2,12 @@ package com.example.usersassessment.di
 
 import androidx.room.Room
 import com.example.usersassessment.data.db.AppDatabase
-import com.example.usersassessment.data.repository.UserRepository
 import com.example.usersassessment.data.repository.UserRepositoryImpl
-import com.example.usersassessment.domain.usecase.FetchUsersUseCase
-import com.example.usersassessment.domain.usecase.GetAllUsersUseCase
-import com.example.usersassessment.domain.usecase.GetUsersByNickName
-import com.example.usersassessment.domain.usecase.SaveAllUsersUseCase
+import com.example.usersassessment.repository.repository.UserRepository
+import com.example.usersassessment.repository.usecase.FetchUsersUseCase
+import com.example.usersassessment.repository.usecase.GetAllUsersUseCase
+import com.example.usersassessment.repository.usecase.GetUsersByNickName
+import com.example.usersassessment.repository.usecase.SaveAllUsersUseCase
 import com.example.usersassessment.ui.screen.main.vm.MainViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf

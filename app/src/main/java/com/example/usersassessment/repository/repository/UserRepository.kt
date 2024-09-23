@@ -1,6 +1,6 @@
-package com.example.usersassessment.data.repository
+package com.example.usersassessment.repository.repository
 
-import com.example.usersassessment.domain.model.User
+import com.example.usersassessment.data.db.entity.User
 
 interface UserRepository {
     suspend fun fetchUsers(): Result<List<User>>

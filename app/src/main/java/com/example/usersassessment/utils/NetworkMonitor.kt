@@ -33,8 +33,21 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
     private fun subscribe() {
         if (callback != null) return
         callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = emitEvent(true)
-            override fun onLost(network: Network) = emitEvent(false)
+            override fun onAvailable(network: Network) {
+                checkNetworkState()
+            }
+
+            override fun onLost(network: Network) {
+                checkNetworkState()
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                checkNetworkState()
+            }
         }.also {
             val request = NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -53,12 +66,34 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
         callback = null
     }
 
+    private fun checkNetworkState() {
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+
+        // Check both if the network is active and if it has internet capability
+        val hasInternet =
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        val isValidated =
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+
+        emitEvent(hasInternet && isValidated)
+    }
+
     private fun emitEvent(isAvailable: Boolean) {
         _isNetworkConnected.value = isAvailable
         Log.d("NetworkMonitor", "Network state changed. isAvailable= $isAvailable")
     }
 
-    private fun isNetworkAvailable(): Boolean =
-        connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    private fun isNetworkAvailable(): Boolean {
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+
+        // Ensure both internet capability and validation are present
+        val hasInternet =
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        val isValidated =
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+
+        return hasInternet && isValidated
+    }
 }
