@@ -7,5 +7,4 @@ interface UsersApi {
 
     @GET("users")
     suspend fun getUsers(): List<UserResponseItem>
-
 }

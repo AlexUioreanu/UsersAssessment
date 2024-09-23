@@ -58,7 +58,7 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
         Log.d("NetworkMonitor", "Network state changed. isAvailable= $isAvailable")
     }
 
-    fun isNetworkAvailable(): Boolean =
+    private fun isNetworkAvailable(): Boolean =
         connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
             ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
 }

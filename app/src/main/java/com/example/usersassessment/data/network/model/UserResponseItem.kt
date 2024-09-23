@@ -1,6 +1,5 @@
 package com.example.usersassessment.data.network.model
 
-
 import com.google.gson.annotations.SerializedName
 
 data class UserResponseItem(

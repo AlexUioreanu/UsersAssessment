@@ -1,28 +1,13 @@
 package com.example.usersassessment.data.repository
 
-import com.example.usersassessment.data.db.UserDao
-import com.example.usersassessment.data.mappers.toUsers
-import com.example.usersassessment.data.network.api.UsersApi
 import com.example.usersassessment.domain.model.User
 
-class UserRepository(private val api: UsersApi, private val dao: UserDao) {
+interface UserRepository {
+    suspend fun fetchUsers(): Result<List<User>>
 
-    suspend fun fetchUsers(): Result<List<User>> =
-        try {
-            val response = api.getUsers().toUsers()
-            Result.success(response)
-        } catch (e: Throwable) {
-            Result.failure(e)
-        }
+    suspend fun saveAllUsers(users: List<User>)
 
-    suspend fun saveAllUsers(users: List<User>) {
-        dao.insertUsers(users)
-    }
+    suspend fun getAllUsers(): List<User>
 
-    suspend fun getAllUsers(): List<User> =
-        dao.getAllUsers()
-
-    suspend fun getUsersByNickName(nickName: String): List<User> =
-        dao.getUsersByNickName(nickName)
-
+    suspend fun getUsersByNickName(nickName: String): List<User>
 }

@@ -1,6 +1,5 @@
 package com.example.usersassessment.ui.commonElements
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -15,8 +14,10 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.usersassessment.R
 import com.example.usersassessment.ui.theme.LocalDimensions
 
+data class DialogData(var isShowing: Boolean, var title: String)
+
 @Composable
-fun Dialog(@StringRes title: String, icon: Int, onDismiss: () -> Unit) {
+fun Dialog(title: String, icon: Int, onDismiss: () -> Unit) {
     val dimensions = LocalDimensions.current
 
     AlertDialog(
@@ -41,5 +42,3 @@ fun Dialog(@StringRes title: String, icon: Int, onDismiss: () -> Unit) {
         title = { Text(text = title, textAlign = TextAlign.Center) }
     )
 }
-
-data class DialogData(var isShowing: Boolean, var title: String)

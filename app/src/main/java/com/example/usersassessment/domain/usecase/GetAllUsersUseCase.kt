@@ -2,8 +2,8 @@ package com.example.usersassessment.domain.usecase
 
 import com.example.usersassessment.data.repository.UserRepository
 
-class GetAllUsersUseCase(private val userRepository: UserRepository) {
+class GetAllUsersUseCase(private val userRepositoryImpl: UserRepository) {
 
     suspend operator fun invoke() =
-        userRepository.getAllUsers()
+        userRepositoryImpl.getAllUsers()
 }

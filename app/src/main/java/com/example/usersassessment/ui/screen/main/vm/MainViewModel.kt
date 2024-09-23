@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-open class MainViewModel(
+class MainViewModel(
     private val networkMonitor: NetworkMonitor,
     private val fetchUsersUseCase: FetchUsersUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
@@ -54,6 +54,8 @@ open class MainViewModel(
                                 .onSuccess { list ->
                                     emitViewState { copy(users = list) }
                                     saveAllUsersUseCase(list)
+                                }.onFailure {
+                                    setViewEffect { MainViewEffect.Dialog.Error(title = "Fail to fetch the Users \n\n Try again later!") }
                                 }
                         }
                     }

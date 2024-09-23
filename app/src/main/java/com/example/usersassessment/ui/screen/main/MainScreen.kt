@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -98,16 +98,15 @@ fun MainScreen(
                     .padding(bottom = dimensions.spaceSm),
                 value = searchedText,
                 onValueChange = onSearchByNickName,
-                label = { Text("Search Users") },
+                label = { Text(stringResource(R.string.search_users)) },
                 leadingIcon = {
                     Icon(
                         modifier = Modifier.size(dimensions.spaceLg),
                         tint = Color(0x51206D0E),
                         painter = painterResource(id = R.drawable.ic_users),
-                        contentDescription = ""
+                        contentDescription = null
                     )
                 },
-                colors = TextFieldDefaults.colors(),
                 singleLine = true
             )
         }) { innerPadding ->
@@ -154,7 +153,7 @@ fun UserCardItem(
     ) {
         Column(
             modifier = Modifier
-                .background(Color(0x51206D0E))
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

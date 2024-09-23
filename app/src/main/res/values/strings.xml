@@ -2,4 +2,5 @@
     <string name="app_name">UsersAssessment</string>
     <string name="ok">OK</string>
     <string name="search_will_not_work">Search will not work</string>
+    <string name="search_users">Search Users</string>
 </resources>

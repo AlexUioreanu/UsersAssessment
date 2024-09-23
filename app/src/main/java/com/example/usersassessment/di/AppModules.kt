@@ -3,6 +3,7 @@ package com.example.usersassessment.di
 import androidx.room.Room
 import com.example.usersassessment.data.db.AppDatabase
 import com.example.usersassessment.data.repository.UserRepository
+import com.example.usersassessment.data.repository.UserRepositoryImpl
 import com.example.usersassessment.domain.usecase.FetchUsersUseCase
 import com.example.usersassessment.domain.usecase.GetAllUsersUseCase
 import com.example.usersassessment.domain.usecase.GetUsersByNickName
@@ -19,6 +20,12 @@ val appModule = module {
 }
 
 val dataModule = module {
+    single<UserRepository> {
+        UserRepositoryImpl(
+            api = get(),
+            dao = get()
+        )
+    }
     single {
         Room.databaseBuilder(
             androidContext(),
@@ -29,7 +36,7 @@ val dataModule = module {
         get<AppDatabase>().userDao()
     }
 
-    singleOf(::UserRepository)
+    singleOf(::UserRepositoryImpl)
 }
 
 val useCasesModule = module {
