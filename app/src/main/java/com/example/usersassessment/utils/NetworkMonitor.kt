@@ -21,8 +21,7 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
         get() = _isNetworkConnected
 
     init {
-//        checkNetworkState()
-
+        checkNetworkState()
         _isNetworkConnected.subscriptionCount
             .map { count -> count > 0 }
             .distinctUntilChanged()
@@ -39,6 +38,7 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
                 super.onLost(network)
                 checkNetworkState()
             }
+
             override fun onCapabilitiesChanged(
                 network: Network,
                 networkCapabilities: NetworkCapabilities

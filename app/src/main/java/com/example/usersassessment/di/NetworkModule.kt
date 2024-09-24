@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 private const val BASE_URL = "https://api.github.com/"
 private const val API_TIMEOUT = 30L
-private const val BEARER_TOKEN = "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"
+private const val BEARER_TOKEN = "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"
 
 val networkModule = module {
     single<Interceptor> {
