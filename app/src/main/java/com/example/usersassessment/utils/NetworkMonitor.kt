@@ -16,11 +16,13 @@ import kotlinx.coroutines.flow.onEach
 class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
     private var callback: ConnectivityManager.NetworkCallback? = null
 
-    private val _isNetworkConnected = MutableStateFlow(isNetworkAvailable())
+    private val _isNetworkConnected = MutableStateFlow(false)
     val isNetworkConnected: StateFlow<Boolean>
         get() = _isNetworkConnected
 
     init {
+//        checkNetworkState()
+
         _isNetworkConnected.subscriptionCount
             .map { count -> count > 0 }
             .distinctUntilChanged()
@@ -33,14 +35,10 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
     private fun subscribe() {
         if (callback != null) return
         callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                checkNetworkState()
-            }
-
             override fun onLost(network: Network) {
+                super.onLost(network)
                 checkNetworkState()
             }
-
             override fun onCapabilitiesChanged(
                 network: Network,
                 networkCapabilities: NetworkCapabilities
@@ -57,7 +55,6 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
                 .build()
             connectivityManager.registerNetworkCallback(request, it)
         }
-        emitEvent(isNetworkAvailable())
     }
 
     private fun unsubscribe() {
@@ -67,16 +64,7 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
     }
 
     private fun checkNetworkState() {
-        val activeNetwork = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-
-        // Check both if the network is active and if it has internet capability
-        val hasInternet =
-            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        val isValidated =
-            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
-
-        emitEvent(hasInternet && isValidated)
+        emitEvent(isNetworkAvailable())
     }
 
     private fun emitEvent(isAvailable: Boolean) {
@@ -85,15 +73,9 @@ class NetworkMonitor(private val connectivityManager: ConnectivityManager) {
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val activeNetwork = connectivityManager.activeNetwork
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
         val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-
-        // Ensure both internet capability and validation are present
-        val hasInternet =
-            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        val isValidated =
-            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
-
-        return hasInternet && isValidated
+        return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 }
